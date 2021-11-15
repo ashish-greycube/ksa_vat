@@ -1,0 +1,166 @@
+{%- macro add_header(page_num, max_pages, doc, letter_head, no_letterhead) -%}
+    {% if letter_head and not no_letterhead %}
+    <div class="letter-head">{{ letter_head }}</div>
+    {% endif %}
+    {%- if doc.meta.is_submittable and doc.docstatus==2-%}
+    <div class="alert alert-danger text-center">
+        <h4 style="margin: 0px;">{{ _("CANCELLED") }}</h4></div>
+    {%- endif -%}
+    {% if max_pages > 1 %}
+    <p class="text-right">{{ _("Page #{0} of {1}").format(page_num, max_pages) }}</p>
+    {% endif %}
+{%- endmacro -%}
+<small>
+{{ add_header(0,1,doc,letter_head, no_letterhead) }}
+
+<div class="row">
+  <div class="col-xs-4 ">
+    <label>{{_("Sales Invoice No")}}</label>
+  </div>
+  <div class="col-xs-8 ">
+    <label>{{_("QR Code")}}</label>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-4 ">
+    <label>{{ doc.name or ''}}</label>
+  </div>
+  <div class="col-xs-8 ">
+    <img src={{ doc.qr_code or ''}} >
+  </div>
+</div>
+
+
+
+			<table class="table table-condensed table-hover table-bordered" style="margin-bottom:7px;">			
+			<tr>								
+        <th>{{_("Customer Name")}}</th>
+        <td>{{ doc.customer_name or ''}}</td>
+        <th>{{_("Date")}}</th>
+        <td>{{ doc.get_formatted("posting_date") or ''}} </td>				
+			</tr>
+			<tr>
+        <th>{{_("Customer VAT No.")}} </th>
+        <td>{{ doc.tax_id or ''}} </td>
+				<th>{{_("Due Date")}}</th>
+        <td>{{ doc.get_formatted("due_date") or ''}} </td>				
+
+				
+    </tr>
+			<tr>
+				{% set tax_id = frappe.db.get_value('Company',doc.company, 'tax_id') %}
+				<th>{{_("Customer Address")}} </th>
+        <td>{{ doc.address_display or ''}} </td>
+        <th>{{_("Company VAT No.")}}</th>
+        <td>{{ tax_id or ''}} </td>					
+    </tr>
+     
+</table>
+
+<table class="table table-condensed table-hover table-bordered">
+  
+  <tr>
+    <th>{{_("Item Code")}} </th>
+    <th>{{_("Item Name")}} </th>
+    <th>{{_("Qty")}}</th>
+    <th>{{_("Rate")}}</th>
+		<th>{{_("Discount")}}</th>
+		<th>{{_("Discounted Rate")}}</th>  
+		<th>{{_("VAT%")}}</th>
+		<th>{{_("VAT Amount")}}</th>
+    <th>{{_("Amount")}}</th>
+  </tr>
+  <tbody>
+  {%- for row in doc.items -%}
+  <tr>
+    <td style="width: 10%;"> {{ row.item_code or '' }} </td>
+    <td style="width: 35%;"> {{ row.item_name or '' }} </td>
+    <td style="width: 10%;">{{ row.qty or ''}}</td>
+    <td style="width: 15%;">{{ row.price_list_rate or ''}}</td>
+     <td style="width: 15%;">{{ row.discount_amount or ''}}</td>
+		 <td style="width: 15%;">{{ row.price_list_rate - row.discount_amount }}</td>
+		 <td style="width: 15%;">{{ row.tax_rate or ''}}</td>
+		 <td style="width: 15%;">{{ row.tax_amount or ''}}</td>
+     <td style="width: 15%;">{{ row.base_amount }}</td>
+
+  </tr>
+  {%- endfor -%}
+    </tbody>
+</table>
+<br>
+<div class="row">
+  <div class="col-xs-7 text-left">
+    <table class="table table-condensed table-hover table-bordered" style="margin-bottom:0px; margin-top:0px;">
+    <tr>
+          <td> <b>{{_("Terms and Conditions")}} </b> </td>
+      </tr>
+     
+      <tr>
+          <td>{{doc.terms}}</td>
+      </tr>
+  </table>
+  </div>
+   {% set item_discount = [] %}
+           {% set item_price_total = [] %}
+           {%- for row in doc.items -%}
+          {% if item_discount.append(row.discount_amount * row.qty) %} {% endif %}
+           {% if item_price_total.append(row.price_list_rate * row.qty) %} {% endif %}
+          {%- endfor -%}
+  <div class="col-xs-5 text-right">
+    <div class="row">
+      <div class="col-xs-8 text-right">
+        <label>{{_("Total")}}</label>
+      </div>
+      <div class="col-xs-4 text-left">
+        <label>{{ doc.base_total }} </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-8 text-right">
+        <label>{{_("Discount Amount")}}</label>
+      </div>
+      <div class="col-xs-4 text-left">
+        <label>{{ (item_discount|sum) + doc.base_discount_amount }} </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-8 text-right">
+        <label>{{_("Total After Discount")}}</label>
+      </div>
+      <div class="col-xs-4 text-left">
+        <label>{{doc.base_total- (item_discount|sum) + doc.base_discount_amount}} </label>
+      </div>
+    </div>		
+    <div class="row">
+      <div class="col-xs-8 text-right">
+        <label>{{_("Tax Amount")}}</label>
+      </div>
+      <div class="col-xs-4 text-left">
+        <label>{{doc.get_formatted("base_total_taxes_and_charges")}} </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-8 text-right">
+        <label>{{_("Net Amount")}}</label>
+      </div>
+      <div class="col-xs-4 text-left">
+        <label>{{doc.get_formatted("base_grand_total")}} </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-8 text-right">
+        <label>{{_("Rounded Total")}}</label>
+      </div>
+      <div class="col-xs-4 text-left">
+        <label>{{doc.get_formatted("base_net_total")}} </label>
+      </div>
+    </div>		
+  </div>
+</div>
+
+<div>
+<div id="footer-html" class="visible-pdf"> {% if not no_letterhead and footer %}
+  <div class="letter-head-footer"> {{ footer }} </div>
+  {% endif %}
+  <p class="text-center small page-number visible-pdf"> {{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }} </p>
+</div>
