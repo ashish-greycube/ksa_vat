@@ -14,20 +14,20 @@
 {{ add_header(0,1,doc,letter_head, no_letterhead) }}
 
 <div class="row">
-  <div class="col-xs-4 ">
-    <label>{{_("Sales Invoice No")}}</label>
-  </div>
   <div class="col-xs-8 ">
     <label>{{_("QR Code")}}</label>
   </div>
+  <div class="col-xs-4 ">
+    <label>{{_("Sales Invoice No")}}</label>
+  </div>  
 </div>
 <div class="row">
-  <div class="col-xs-4 ">
-    <label>{{ doc.name or ''}}</label>
-  </div>
   <div class="col-xs-8 ">
-    <img src={{ doc.qr_code or ''}} >
+    <img src={{ doc.qr_code or ''}} width='128' height='128' alt='QR Code'>
   </div>
+  <div class="col-xs-4 ">
+    <label><h5><b>{{ doc.name or ''}}</b></h5></label>
+  </div>  
 </div>
 
 
