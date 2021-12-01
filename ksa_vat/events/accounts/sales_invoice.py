@@ -45,19 +45,25 @@ Vendor Name / المورد
 ____________________________
 VAT ID / الرقم الضريبي
 {1}
-____________________________			
+____________________________
+Customer Name / اسم العميل
+{2}
+____________________________
+Customer VAT ID / الرقم الضريبي
+{3}
+____________________________		
 Date & Time / التاريخ الوقت
-{2} : {3}
+{4} : {5}
 ____________________________			
 Total VAT Amount / اجمالي الضريبة
-{4}
+{6}
 ____________________________			
 Total Amount / مجموع الاجمالي
-{5} 
+{7} 
 ____________________________
 URL / الرابط
-{6}
-			'''.format(doc.company, doc.company_trn, doc.posting_date, doc.posting_time,
+{8}
+			'''.format(doc.company, doc.company_trn, doc.customer_name,doc.tax_id,doc.posting_date, doc.posting_time,
                             doc.base_total_taxes_and_charges, doc.grand_total, url)
 
 			qr_image = io.BytesIO()
