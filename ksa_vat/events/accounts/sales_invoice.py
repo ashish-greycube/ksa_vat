@@ -57,7 +57,7 @@ Total Amount / مجموع الاجمالي
 ____________________________
 URL / الرابط
 {6}
-			'''.format(doc.company, doc.tax_id, doc.posting_date, doc.posting_time,
+			'''.format(doc.company, doc.company_trn, doc.posting_date, doc.posting_time,
                             doc.base_total_taxes_and_charges, doc.grand_total, url)
 
 			qr_image = io.BytesIO()
